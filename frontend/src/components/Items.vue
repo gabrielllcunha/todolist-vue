@@ -57,7 +57,7 @@ const handleCheck = (item: any) => {
             >
               {{ item.name }}
             </span>
-            <span class="item-date">{{ item.date }}</span>
+            <span class="item-date">{{ item.createdAt }}</span>
           </div>
           <div class="item-contentDesc">
             <span

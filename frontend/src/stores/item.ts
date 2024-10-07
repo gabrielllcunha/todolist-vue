@@ -7,7 +7,7 @@ export type Item = {
   title: string;
   description: string;
   status: 'incomplete' | 'completed';
-  date: Date;
+  createdAt: string;
 };
 
 export const TodoItemStore = defineStore('item', () => {

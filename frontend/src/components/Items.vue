@@ -11,21 +11,21 @@ const items = ref([
   {
     id: 0,
     name: 'Task 1',
-    date: '2024-10-01',
+    createdAt: '2024-10-01',
     description: 'Description for task 1',
     status: 'completed',
   },
   {
     id: 1,
     name: 'Task 2',
-    date: '2024-10-02',
+    createdAt: '2024-10-02',
     description: 'Description for task 2',
     status: 'incomplete',
   },
   {
     id: 2,
     name: 'Task 3',
-    date: '2024-10-03',
+    createdAt: '2024-10-03',
     description: 'Description for task 3',
     status: 'incomplete',
   }

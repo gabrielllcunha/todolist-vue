@@ -24,7 +24,7 @@ const activeTab = ref('incomplete');
   padding: 1rem 0;
 }
 
-.el-tabs__item.is-active, .el-tabs__item:hover {
-    color: red !important;
+::v-deep .el-tabs__item:not(.is-active) {
+  color: #6c6c6c;
 }
 </style>

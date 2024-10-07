@@ -1,39 +1,45 @@
 # todolist-vue
 
-This template should help get you started developing with Vue 3 in Vite.
+Este é um projeto de um gerenciador de tarefas construído com **Vue.js**, utilizando **Element Plus** para a interface do usuário e **Firebase** para o gerenciamento de autenticação e armazenamento de dados.
 
-## Recommended IDE Setup
+## 🛠️ Configurando o ambiente
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+1. **Clone o repositório:**
 
-## Type Support for `.vue` Imports in TS
+    ```sh
+    git clone https://github.com/gabrielllcunha/todolist-vue.git
+    cd todolist-vue
+    ```
+    
+2. **Instale as dependências do backend:**
+    
+    ```sh
+    cd backend
+    npm i
+    ```
+3. **Instale as dependências do frontend:**
+    
+    ```sh
+    cd ..
+    cd frontend
+    npm i
+    ```
+4. **Inicialize o projeto:**
+    
+    ```sh
+    npm run dev
+    ```
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## ⚡ Techs
+- **Vue.js**: Framework progressivo para construção de interfaces de usuário.
+- **Element Plus**: Biblioteca de componentes UI para Vue 3.
+- **Vite**: Ferramenta de build rápida e leve para desenvolvimento de aplicações front-end.
+- **Pinia**: Gerenciamento de estado para Vue.js.
+- **Firebase**: Plataforma de desenvolvimento que fornece autenticação e armazenamento em tempo real.
+- **TypeScript**: Superset do JavaScript que adiciona tipagem estática ao desenvolvimento.
 
-## Customize configuration
+## ✨ Funcionalidades
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- Página de login para autenticação de usuários.
+- Criação de tarefas.
+- Marcação de tarefas como concluídas.

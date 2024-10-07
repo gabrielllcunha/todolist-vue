@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { CircleCheck } from '@element-plus/icons-vue';
+import { ElIcon } from 'element-plus';
 const props = defineProps({
   activeTab: {
     type: String,
@@ -42,13 +43,29 @@ const filteredItems = computed(() => {
 const handleCheck = (item: any) => {
   item.status = item.status === 'completed' ? 'incomplete' : 'completed';
 };
+const hoveredItemId = ref<number | null>(null);
+const setHoveredItem = (id: number | null) => {
+  hoveredItemId.value = id;
+};
 </script>
 
 <template>
   <div class="card-wrapper">
     <div v-for="(item, index) in filteredItems" :key="index" class="item">
       <div class="item-wrapper">
-        <CircleCheck class="check-icon" @click="handleCheck(item)"/>
+        <el-icon
+          class="check-icon"
+          size="25"
+          :style="{ 
+            color: hoveredItemId === item.id && item.status === 'incomplete' ? '#16CC31' : '#EBEBEBA3', 
+            transition: 'color 0.3s ease' 
+          }"
+          @click="handleCheck(item)"
+          @mouseover="setHoveredItem(item.id)"
+          @mouseleave="setHoveredItem(null)"
+        >
+          <CircleCheck />
+        </el-icon>
         <div class="item-content">
           <div class="item-header">
             <span

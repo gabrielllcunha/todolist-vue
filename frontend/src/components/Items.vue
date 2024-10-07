@@ -11,21 +11,21 @@ const props = defineProps({
 const items = ref([
   {
     id: 0,
-    name: 'Task 1',
+    title: 'Task 1',
     createdAt: '2024-10-01',
     description: 'Description for task 1',
     status: 'completed',
   },
   {
     id: 1,
-    name: 'Task 2',
+    title: 'Task 2',
     createdAt: '2024-10-02',
     description: 'Description for task 2',
     status: 'incomplete',
   },
   {
     id: 2,
-    name: 'Task 3',
+    title: 'Task 3',
     createdAt: '2024-10-03',
     description: 'Description for task 3',
     status: 'incomplete',
@@ -69,10 +69,10 @@ const setHoveredItem = (id: number | null) => {
         <div class="item-content">
           <div class="item-header">
             <span
-              class="item-name"
+              class="item-title"
               :class="{ 'dashed': item.status === 'completed' }"
             >
-              {{ item.name }}
+              {{ item.title }}
             </span>
             <span class="item-date">{{ item.createdAt }}</span>
           </div>
@@ -123,7 +123,7 @@ const setHoveredItem = (id: number | null) => {
   font-size: 18px;
 }
 
-.item-name {
+.item-title {
   font-size: 24px;
   font-weight: 700;
 }

@@ -1,6 +1,8 @@
 # todolist-vue
 
-Este é um projeto de um gerenciador de tarefas construído com **Vue.js**, utilizando **Element Plus** para a interface do usuário e **Firebase** para o gerenciamento de autenticação e armazenamento de dados.
+Este é um projeto de um gerenciador de tarefas construído com **Vue.js**, utilizando **Element Plus** para a interface do usuário e **Firebase** para o gerenciamento de autenticação e armazenamento de dados. 
+<br/>
+Hospedado em: https://todolist-vue-a4ae8.web.app/
 
 ## 🛠️ Configurando o ambiente
 

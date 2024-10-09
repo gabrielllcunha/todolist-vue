@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
-import api from '../api/index'
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '@/firebase.client';
 
 const inputs = ref({
 	email: '',
@@ -17,33 +18,35 @@ const router = useRouter();
 
 const screen = ref<'signin' | 'signup' | 'recovery'>('signin')
 
-const handleSubmit = async () => {
+const handleSignin = async () => {
   const trimmedEmail = inputs.value.email.trim();
   const trimmedPassword = inputs.value.password.trim();
-  const data = {
-    email: trimmedEmail,
-    password: trimmedPassword
-  };
-  // await api.post('/auth/signin', data);
-  router.push('/items');
-}
-
-const handleRecovery = async () => {
-  const trimmedRecoveryEmail = recoverInputs.value.email.trim();
-  const data = {
-    email: trimmedRecoveryEmail
-  };
-  // await api.post('/auth/recovery', data);
+  try {
+    await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+    router.push('/items');
+  } catch (error) {
+    console.error('Login failed:', error);
+  }
 }
 
 const handleSignup = async () => {
   const trimmedEmail = inputs.value.email.trim();
   const trimmedPassword = inputs.value.password.trim();
-  const data = {
-    email: trimmedEmail,
-    password: trimmedPassword
-  };
-  // await api.post('/auth/signup', data);
+  try {
+    await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
+    router.push('/items');
+  } catch (error) {
+    console.error('Signup failed:', error);
+  }
+}
+
+const handleRecovery = async () => {
+  const trimmedRecoveryEmail = recoverInputs.value.email.trim();
+  try {
+    await sendPasswordResetEmail(auth, trimmedRecoveryEmail);
+  } catch (error) {
+    console.error('Password recovery failed:', error);
+  }
 }
 </script>
 
@@ -51,7 +54,7 @@ const handleSignup = async () => {
   <div class="login-card">
     <div v-if="screen === 'signin'">
       <h2>Login</h2>
-      <form @submit.prevent="handleSubmit">
+      <form @submit.prevent="handleSignin">
         <div class="form-group">
           <label for="email">Email</label>
           <input v-model="inputs.email" type="email" id="email" placeholder="Digite seu email" />

@@ -24,7 +24,7 @@ const activeTab = ref('incomplete');
   padding: 1rem 0;
 }
 
-::v-deep .el-tabs__item:not(.is-active) {
+:deep(.el-tabs__item:not(.is-active)) {
   color: #6c6c6c;
 }
 </style>

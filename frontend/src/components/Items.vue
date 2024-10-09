@@ -55,6 +55,10 @@ const hoveredItemId = ref<any>(null);
 const setHoveredItem = (id: string | null) => {
   hoveredItemId.value = id;
 };
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('pt-BR');
+};
 </script>
 
 <template>
@@ -82,7 +86,7 @@ const setHoveredItem = (id: string | null) => {
             >
               {{ item.title }}
             </span>
-            <span class="item-date">{{ item.createdAt }}</span>
+            <span class="item-date">{{ formatDate(item.createdAt) }}</span>
           </div>
           <div class="item-contentDesc">
             <span

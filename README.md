@@ -13,14 +13,30 @@ Hospedado em: https://todolist-vue-a4ae8.web.app/
     cd todolist-vue
     ```
     
-2. **Instale as dependências**
+2. **Instale as dependências:**
     
     ```sh
     cd frontend
     npm i
     ```
-3. **Inicialize o projeto:**
-    
+
+3. **Configure as variáveis de ambiente:**
+
+    - Crie um arquivo `.env` na raiz da pasta `frontend` com base no `.env.example` fornecido.
+    - Preencha o arquivo `.env` com suas credenciais do Firebase, que você pode encontrar no console do Firebase em **Configurações do projeto**.
+
+    Exemplo de arquivo `.env`:
+    ```sh
+    VITE_FIREBASE_API_KEY=your-api-key
+    VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
+    VITE_FIREBASE_PROJECT_ID=your-project-id
+    VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
+    VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+    VITE_FIREBASE_APP_ID=your-app-id
+    ```
+
+4. **Inicialize o projeto:**
+
     ```sh
     npm run dev
     ```

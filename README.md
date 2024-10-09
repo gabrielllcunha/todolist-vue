@@ -13,20 +13,13 @@ Hospedado em: https://todolist-vue-a4ae8.web.app/
     cd todolist-vue
     ```
     
-2. **Instale as dependências do backend:**
+2. **Instale as dependências**
     
     ```sh
-    cd backend
-    npm i
-    ```
-3. **Instale as dependências do frontend:**
-    
-    ```sh
-    cd ..
     cd frontend
     npm i
     ```
-4. **Inicialize o projeto:**
+3. **Inicialize o projeto:**
     
     ```sh
     npm run dev

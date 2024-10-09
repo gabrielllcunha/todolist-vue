@@ -1,13 +1,39 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { ElButton } from 'element-plus'
+import { auth, database } from '@/firebase.client';
+import { ref as dbRef, push } from 'firebase/database';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const item = ref('')
 const emptyNewItem = computed(() => item.value.length === 0)
-
-const handleCreate = () => {
-  item.value = ''
-}
+const userId = ref<string | null>(null);
+onAuthStateChanged(auth, (user: any) => {
+  if (user) {
+    userId.value = user.uid;
+  } else {
+    userId.value = null;
+  }
+});
+const handleCreate = async () => {
+  if (!userId.value) {
+    console.log('User not authenticated.');
+    return;
+  }
+  const newItem = {
+    title: item.value,
+    createdAt: new Date().toISOString(),
+    description: '',
+    status: 'incomplete',
+  };
+  try {
+    const itemsRef = dbRef(database, `users/${userId.value}/items`);
+    await push(itemsRef, newItem);
+    item.value = '';
+  } catch (error) {
+    console.error('Error adding new item:', error);
+  }
+};
 </script>
 
 <template>

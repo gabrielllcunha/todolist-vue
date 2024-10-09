@@ -2,35 +2,39 @@
 import { ref, computed } from 'vue';
 import { CircleCheck } from '@element-plus/icons-vue';
 import { ElIcon } from 'element-plus';
+import { auth, database } from '@/firebase.client';
+import { ref as dbRef, get, update } from 'firebase/database';
+import { onAuthStateChanged } from 'firebase/auth';
+
 const props = defineProps({
   activeTab: {
     type: String,
     required: true
   }
 });
-const items = ref([
-  {
-    id: 0,
-    title: 'Task 1',
-    createdAt: '2024-10-01',
-    description: 'Description for task 1',
-    status: 'completed',
-  },
-  {
-    id: 1,
-    title: 'Task 2',
-    createdAt: '2024-10-02',
-    description: 'Description for task 2',
-    status: 'incomplete',
-  },
-  {
-    id: 2,
-    title: 'Task 3',
-    createdAt: '2024-10-03',
-    description: 'Description for task 3',
-    status: 'incomplete',
+const items = ref<any[]>([]);
+const userId = ref<string | null>(null);
+const fetchUserItems = async (uid: string) => {
+  const itemsRef = dbRef(database, `users/${uid}/items`);
+  const snapshot = await get(itemsRef);
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+    items.value = Object.keys(data).map(key => ({
+      id: key, 
+      ...data[key]
+    }));
+  } else {
+    console.log('No data');
   }
-])
+};
+onAuthStateChanged(auth, (user: any) => {
+  if (user) {
+    userId.value = user.uid;
+    fetchUserItems(user.uid);
+  } else {
+    userId.value = null;
+  }
+});
 const filteredItems = computed(() => {
   return items.value.filter(item => {
     if (props.activeTab === 'incomplete') {
@@ -40,11 +44,15 @@ const filteredItems = computed(() => {
     }
   });
 });
-const handleCheck = (item: any) => {
+const handleCheck = async (item: any) => {
   item.status = item.status === 'completed' ? 'incomplete' : 'completed';
+  if (userId.value) {
+    const itemRef = dbRef(database, `users/${userId.value}/items/${item.id}`);
+    await update(itemRef, { status: item.status });
+  }
 };
-const hoveredItemId = ref<number | null>(null);
-const setHoveredItem = (id: number | null) => {
+const hoveredItemId = ref<any>(null);
+const setHoveredItem = (id: string | null) => {
   hoveredItemId.value = id;
 };
 </script>

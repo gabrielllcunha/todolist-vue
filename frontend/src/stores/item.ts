@@ -1,6 +1,9 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import api from '@/api';
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
+import { database } from '@/firebase.client';
+import { ref as dbRef, push, update, onValue, remove } from 'firebase/database';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase.client';
 
 export type Item = {
   id: string;
@@ -11,63 +14,72 @@ export type Item = {
 };
 
 export const TodoItemStore = defineStore('item', () => {
-	const items = ref<{
-		completed: Item[],
-		incomplete: Item[],
-	}>({
-		completed: [],
-		incomplete: [],
-	});
-	const hasMore = ref({
-		completed: true,
-		incomplete: true,
-	});
+  const items = ref<{ completed: Item[]; incomplete: Item[] }>({
+    completed: [],
+    incomplete: [],
+  });
+  const userId = ref<string | null>(null);
 
-	const getItem = async (pageNumber: string, status: 'completed' | 'incomplete') => {		
-		const { data } = await api.get<{items: Item[], hasMore: boolean}>('/item', {
-			params: {
-				pageNumber,
-				status: parseStatus(status),
-			}
-		});		
-		
-		if (pageNumber === '1')	items.value[status] = data.items;
-		else items.value[status] = [...items.value[status], ...data.items];
-		hasMore.value[status] = data.hasMore;
-	}
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userId.value = user.uid;
+      getItems(user.uid);
+    } else {
+      userId.value = null;
+      items.value = { completed: [], incomplete: [] };
+    }
+  });
 
-	const createItem = async (item: Omit<Item, 'id' | 'createdAt'>) => {
-			await api.post('/item/create', item);
-			await getItem('1', 'incomplete');
-	}
+  const getItems = async (uid: string) => {
+    const itemsRef = dbRef(database, `users/${uid}/items`);
+    onValue(itemsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const allItems = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
 
-	const updateItemStatus = async (item: Item, newStatus: 'completed' | 'incomplete') => {
-		await api.put(`/item/update/${item.id}`, {
-			...item,
-			status: newStatus
-		});
+        items.value.completed = allItems.filter(
+          (item) => item.status === 'completed'
+        );
+        items.value.incomplete = allItems.filter(
+          (item) => item.status === 'incomplete'
+        );
+      } else {
+        items.value = { completed: [], incomplete: [] };
+      }
+    });
+  };
 
-		await getItem('1', item.status === 'incomplete' ? 'incomplete' : item.status)
-		await getItem('1', newStatus === 'incomplete' ? 'incomplete' : newStatus)
-	}
+  const createItem = async (newItem: Omit<Item, 'id' | 'createdAt'>) => {
+    if (!userId.value) return;
+    const item = {
+      ...newItem,
+      createdAt: new Date().toISOString(),
+      status: 'incomplete',
+    };
+    const itemsRef = dbRef(database, `users/${userId.value}/items`);
+    await push(itemsRef, item);
+  };
 
-	const deleteItem = async (item: Item) => {
-		await api.delete(`/item/delete/${item.id}`);
+  const updateItemStatus = async (item: Item, newStatus: 'completed' | 'incomplete') => {
+    if (!userId.value) return;
+    const itemRef = dbRef(database, `users/${userId.value}/items/${item.id}`);
+    await update(itemRef, { status: newStatus });
+  };
 
-		await getItem('1', item.status === 'incomplete' ? 'incomplete' : item.status)
-	}
+  const updateItemField = async (itemId: string, field: string, value: string) => {
+    if (!userId.value) return;
+    const itemRef = dbRef(database, `users/${userId.value}/items/${itemId}`);
+    await update(itemRef, { [field]: value });
+  };
 
-	const updateItem = async (id: string, item: Omit<Item, 'id' | 'createdAt'>) => {
-		await api.put(`/item/update/${id}`, item)
-		await getItem('1', item.status === 'incomplete' ? 'incomplete' : item.status)
-	}
+  const deleteItem = async (itemId: string) => {
+    if (!userId.value) return;
+    const itemRef = dbRef(database, `users/${userId.value}/items/${itemId}`);
+    await remove(itemRef);
+  };
 
-	const parseStatus = (status: 'completed' | 'incomplete') => {
-		if (status === 'incomplete') return 'incomplete';
-		return status;
-	};
-
-  return { getItem, items, hasMore, createItem, updateItem, updateItemStatus, deleteItem }
-})
-
-
+  return { items, createItem, updateItemStatus, updateItemField, deleteItem };
+});

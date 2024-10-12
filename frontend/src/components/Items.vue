@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { CircleCheck } from '@element-plus/icons-vue';
-import { ElIcon } from 'element-plus';
-import { auth, database } from '@/firebase.client';
-import { ref as dbRef, get, update } from 'firebase/database';
-import { onAuthStateChanged } from 'firebase/auth';
+import { CircleCheck, Delete } from '@element-plus/icons-vue';
+import { ElIcon, ElInput } from 'element-plus';
+import { TodoItemStore } from '@/stores/item';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps({
   activeTab: {
@@ -12,48 +11,31 @@ const props = defineProps({
     required: true
   }
 });
-const items = ref<any[]>([]);
-const userId = ref<string | null>(null);
-const fetchUserItems = async (uid: string) => {
-  const itemsRef = dbRef(database, `users/${uid}/items`);
-  const snapshot = await get(itemsRef);
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-    items.value = Object.keys(data).map(key => ({
-      id: key, 
-      ...data[key]
-    }));
-  } else {
-    console.log('No data');
-  }
+const itemStore = TodoItemStore();
+const { items } = storeToRefs(itemStore);
+const editingItem = ref<{ id: string | null, field: string | null }>({ id: null, field: null });
+const setEditingItem = (id: string | null, field: string | null) => {
+  editingItem.value = { id, field };
 };
-onAuthStateChanged(auth, (user: any) => {
-  if (user) {
-    userId.value = user.uid;
-    fetchUserItems(user.uid);
-  } else {
-    userId.value = null;
-  }
-});
+const updateItemField = (item: any, field: string, value: string) => {
+  itemStore.updateItemField(item.id, field, value);
+};
 const filteredItems = computed(() => {
-  return items.value.filter(item => {
-    if (props.activeTab === 'incomplete') {
-      return item.status === 'incomplete';
-    } else if (props.activeTab === 'completed') {
-      return item.status === 'completed';
-    }
-  });
-});
-const handleCheck = async (item: any) => {
-  item.status = item.status === 'completed' ? 'incomplete' : 'completed';
-  if (userId.value) {
-    const itemRef = dbRef(database, `users/${userId.value}/items/${item.id}`);
-    await update(itemRef, { status: item.status });
+  if (props.activeTab === 'incomplete') {
+    return items.value.incomplete;
+  } else if (props.activeTab === 'completed') {
+    return items.value.completed;
+  } else {
+    return [];
   }
+});
+const handleCheck = (item: any) => {
+  const newStatus = item.status === 'completed' ? 'incomplete' : 'completed';
+  itemStore.updateItemStatus(item, newStatus);
 };
-const hoveredItemId = ref<any>(null);
-const setHoveredItem = (id: string | null) => {
-  hoveredItemId.value = id;
+const hoveredIcon = ref<{ type: string | null, id: string | null }>({ type: null, id: null });
+const setHoveredIcon = (type: string | null, id: string | null) => {
+  hoveredIcon.value = { type, id };
 };
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -62,39 +44,68 @@ const formatDate = (dateString: string) => {
 </script>
 
 <template>
-  <div class="card-wrapper">
+  <div class="items-wrapper">
     <div v-for="(item, index) in filteredItems" :key="index" class="item">
       <div class="item-wrapper">
         <el-icon
           class="check-icon"
           size="25"
           :style="{ 
-            color: hoveredItemId === item.id && item.status === 'incomplete' ? '#16CC31' : '#EBEBEBA3', 
+            color: hoveredIcon.type === 'check' && hoveredIcon.id === item.id && item.status === 'incomplete' 
+              ? '#16CC31' 
+              : '#EBEBEBA3', 
             transition: 'color 0.3s ease' 
           }"
           @click="handleCheck(item)"
-          @mouseover="setHoveredItem(item.id)"
-          @mouseleave="setHoveredItem(null)"
+          @mouseover="setHoveredIcon('check', item.id)"
+          @mouseleave="setHoveredIcon(null, null)"
         >
           <CircleCheck />
         </el-icon>
         <div class="item-content">
-          <div class="item-header">
-            <span
-              class="item-title"
-              :class="{ 'dashed': item.status === 'completed' }"
-            >
+          <div class="item-text">
+            <span v-if="editingItem.id !== item.id || editingItem.field !== 'title'"
+                class="item-title"
+                :class="{ 'dashed': item.status === 'completed' }"
+                @click="setEditingItem(item.id, 'title')">
               {{ item.title }}
             </span>
-            <span class="item-date">{{ formatDate(item.createdAt) }}</span>
-          </div>
-          <div class="item-contentDesc">
-            <span
-              class="item-description"
-              :class="{ 'dashed': item.status === 'completed' }"
-            >
+            <el-input v-else
+              v-model="item.title"
+              @blur="() => { setEditingItem(null, null); updateItemField(item, 'title', item.title); }"
+              style="width: 240px"
+              placeholder="Edit title" 
+            />
+            <span v-if="editingItem.id !== item.id || editingItem.field !== 'description'"
+                class="item-description"
+                :class="{ 'dashed': item.status === 'completed' }"
+                @click="setEditingItem(item.id, 'description')">
               {{ item.description }}
             </span>
+            <el-input v-else
+              v-model="item.description"
+              @blur="() => { setEditingItem(null, null); updateItemField(item, 'description', item.description); }"
+              style="width: 240px"
+              placeholder="Edit description" 
+            />
+          </div>
+          <div class="item-info">
+            <span class="item-date">{{ formatDate(item.createdAt) }}</span>
+            <el-icon 
+              class="delete-icon"
+              size="16"
+              :style="{ 
+                color: hoveredIcon.type === 'delete' && hoveredIcon.id === item.id 
+                  ? '#FF4C4C' 
+                  : '#EBEBEBA3', 
+                transition: 'color 0.3s ease' 
+              }"
+              @click="itemStore.deleteItem(item.id)"
+              @mouseover="setHoveredIcon('delete', item.id)"
+              @mouseleave="setHoveredIcon(null, null)"
+            >
+              <Delete />
+            </el-icon>
           </div>
         </div>
       </div>
@@ -103,7 +114,7 @@ const formatDate = (dateString: string) => {
 </template>
 
 <style scoped>
-.card-wrapper {
+.items-wrapper {
   display: flex;
   flex-direction: column;
   width: 750px;
@@ -125,14 +136,22 @@ const formatDate = (dateString: string) => {
 
 .item-content {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   width: 100%;
+  gap: 0.5rem;
 }
 
-.item-header {
-  display: flex; 
+.item-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
   justify-content: space-between;
-  font-size: 18px;
+  gap: 2rem;
 }
 
 .item-title {
@@ -140,26 +159,23 @@ const formatDate = (dateString: string) => {
   font-weight: 700;
 }
 
+.item-description {
+  margin-top: 0.5rem;
+}
+
 .item-date {
   font-size: 12px;
   font-weight: 400;
   opacity: 0.7;
-}
-
-.item-contentDesc {
   margin-top: 0.5rem;
 }
 
-.item-description {
-  flex-grow: 1;
-}
-
-.item-date {
-  margin-left: 1rem;
+.delete-icon {
+  margin-bottom: 0.3rem;
+  cursor: pointer;
 }
 
 .check-icon {
-  height: 25px;
   margin-top: 10px;
   cursor: pointer;
 }
@@ -169,7 +185,7 @@ const formatDate = (dateString: string) => {
 }
 
 @media (max-width: 767px) {
-  .card-wrapper {
+  .items-wrapper {
     width: 100%;
   }
 }

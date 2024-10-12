@@ -24,6 +24,10 @@ const activeTab = ref('incomplete');
   padding: 1rem 0;
 }
 
+:deep(.el-tabs__item) {
+  user-select: none;
+}
+
 :deep(.el-tabs__item:not(.is-active)) {
   color: #6c6c6c;
 }

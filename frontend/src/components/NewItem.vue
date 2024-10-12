@@ -15,6 +15,11 @@ const handleCreate = () => {
   });
   item.value = '';
 };
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    handleCreate();
+  }
+};
 </script>
 
 <template>
@@ -24,6 +29,7 @@ const handleCreate = () => {
       type="text"
       placeholder="Digite para adicionar um novo item"
       class="item-input"
+      @keydown="handleKeydown"
     />
     <el-button 
         type="primary"

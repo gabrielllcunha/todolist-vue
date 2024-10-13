@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ElButton } from 'element-plus'
+import { UserStore } from '@/stores/user';
 const router = useRouter();
-const handleLogout = () => {
-  router.push('/');
+const userStore = UserStore();
+const handleLogout = async () => {
+  try {
+    await userStore.logout();
+    router.push('/');
+  } catch (error) {
+    console.error('Error logging out:', error);
+  }
 };
 </script>
 

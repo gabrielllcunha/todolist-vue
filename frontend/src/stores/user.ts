@@ -1,48 +1,54 @@
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import { useRouter } from 'vue-router'
-import api from '@/api';
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
+import { useRouter } from 'vue-router';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from '@/firebase.client';
 
 export const UserStore = defineStore('user', () => {
-	const router = useRouter();
-	const isLogged = ref(false);
-	const user = ref({
-		email: '',
-	});
+  const router = useRouter();
+  const isLogged = ref(false);
+  const user = ref<{ email: string; uid: string | null }>({
+    email: '',
+    uid: null,
+  });
 
-	const getUser = async () => {
-		try {
-			const { data } = await api.get<{ email: string }>('/auth/user');
-			if (data && typeof data.email === 'string') {
-				user.value = data;
-				isLogged.value = true;
-			} else {
-				console.error('Unexpected response structure:', data);
-			}
-		} catch (error) {
-			console.error('Error fetching user:', error);
-		}
-	};
+  onAuthStateChanged(auth, (firebaseUser) => {
+    if (firebaseUser) {
+      isLogged.value = true;
+      user.value = {
+        email: firebaseUser.email || '',
+        uid: firebaseUser.uid,
+      };
+    } else {
+      isLogged.value = false;
+      user.value = { email: '', uid: null };
+    }
+  });
 
-	const logout = async () => {
-		try {
-			await api.post('/auth/logout');
-		} catch (error) {
-			console.error(error);
-		} finally {
-			user.value = { email: '' };
-			router.push('/');
-		}
-	};
+  const getUser = () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      user.value = {
+        email: currentUser.email || '',
+        uid: currentUser.uid,
+      };
+      isLogged.value = true;
+    } else {
+      isLogged.value = false;
+      user.value = { email: '', uid: null };
+    }
+  };
 
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      isLogged.value = false;
+      user.value = { email: '', uid: null };
+      router.push('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
-	const recoveryPassword = async (email: string) => {
-		await api.post('/auth/recovery', {
-			email,
-		});
-	}
-
-  return { user, getUser, logout, recoveryPassword, isLogged }
-})
-
-
+  return { isLogged, user, getUser, logout };
+});

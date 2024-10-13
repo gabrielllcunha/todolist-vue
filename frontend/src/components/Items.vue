@@ -17,6 +17,7 @@ const setEditingItem = (id: string | null, field: string | null) => {
 const handleUpdateItemField = (item: any, field: string, value: string) => {
   itemStore.updateItemField(item.id, field, value);
   setEditingItem(null, null);
+  setHoveredObject(null, null);
 };
 const filteredItems = computed(() => {
   if (props.activeTab === 'incomplete') {
@@ -76,6 +77,7 @@ const formatDate = (dateString: string) => {
             </span>
             <el-input v-else
               v-model="item.title"
+              size="large"
               @blur="() => handleUpdateItemField(item, 'title', item.title)"
               @keydown.enter="() => handleUpdateItemField(item, 'title', item.title)"
               :disabled="item.status === 'completed'"

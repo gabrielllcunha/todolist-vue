@@ -7,6 +7,7 @@ import { auth } from '@/firebase.client';
 export const UserStore = defineStore('user', () => {
   const router = useRouter();
   const isLogged = ref(false);
+  const isAuthReady = ref(false);
   const user = ref<{ email: string; uid: string | null }>({
     email: '',
     uid: null,
@@ -23,6 +24,7 @@ export const UserStore = defineStore('user', () => {
       isLogged.value = false;
       user.value = { email: '', uid: null };
     }
+    isAuthReady.value = true;
   });
 
   const getUser = () => {
@@ -50,5 +52,5 @@ export const UserStore = defineStore('user', () => {
     }
   };
 
-  return { isLogged, user, getUser, logout };
+  return { isLogged, isAuthReady, user, getUser, logout };
 });

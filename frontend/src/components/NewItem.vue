@@ -47,7 +47,9 @@ const handleKeydown = (event: KeyboardEvent) => {
   display: flex;
   gap: 1rem;
   width: 750px;
+  height: 40px;
   margin-bottom: 2rem;
+  align-items: center;
 }
 
 @media (max-width: 767px) {
@@ -61,6 +63,8 @@ const handleKeydown = (event: KeyboardEvent) => {
   padding: 0.5rem;
   border-radius: 4px;
   border: 1px solid #ccc;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .create-button {
@@ -70,6 +74,9 @@ const handleKeydown = (event: KeyboardEvent) => {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .create-button:disabled {

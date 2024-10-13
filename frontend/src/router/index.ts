@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import ItemsView from '@/views/ItemsView.vue'
 import LoginView from '@/views/LoginView.vue'
@@ -25,15 +26,31 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const userStore = UserStore();
-  if (to.name !== 'login' && !userStore.isLogged) {
-    next({ name: 'login' });
-  }
-  else if (to.name === 'login' && userStore.isLogged) {
-    next({ name: 'items' });
-  }
-  else {
-    next();
-  }
+  const waitForAuthState = () => {
+    if (!userStore.isAuthReady) {
+      const stopWatching = watch(
+        () => userStore.isAuthReady,
+        (ready) => {
+          if (ready) {
+            stopWatching();
+            proceed();
+          }
+        }
+      );
+    } else {
+      proceed();
+    }
+  };
+  const proceed = () => {
+    if (to.name !== 'login' && !userStore.isLogged) {
+      next({ name: 'login' });
+    } else if (to.name === 'login' && userStore.isLogged) {
+      next({ name: 'items' });
+    } else {
+      next();
+    }
+  };
+  waitForAuthState();
 });
 
 export default router;

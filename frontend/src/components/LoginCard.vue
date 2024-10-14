@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElButton } from 'element-plus'
+import { ElButton, ElNotification } from 'element-plus'
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/firebase.client';
 
@@ -25,7 +25,11 @@ const handleSignin = async () => {
     await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
     router.push('/items');
   } catch (error) {
-    console.error('Login failed:', error);
+    ElNotification({
+      title: 'Erro',
+      message: 'Email ou senha inválidos!',
+      type: 'error',
+    })
   }
 }
 

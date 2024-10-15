@@ -1,43 +1,39 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ElButton } from 'element-plus'
-import { TodoItemStore } from '@/stores/item';
+import { ElButton, ElInput } from 'element-plus'
+import { TodoItemStore } from '@/stores/item'
 
-const itemStore = TodoItemStore();
-const item = ref('');
-const emptyNewItem = computed(() => item.value.length === 0);
+const itemStore = TodoItemStore()
+const item = ref('')
+const emptyNewItem = computed(() => item.value.length === 0)
 const handleCreate = () => {
-  if (emptyNewItem.value) return;
+  if (emptyNewItem.value) return
   itemStore.createItem({
     title: item.value,
     description: '',
-    status: 'incomplete',
-  });
-  item.value = '';
-};
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter') {
-    handleCreate();
+    status: 'incomplete'
+  })
+  item.value = ''
+}
+const handleKeydown = (event: Event) => {
+  const keyboardEvent = event as KeyboardEvent
+  if (keyboardEvent.key === 'Enter') {
+    handleCreate()
   }
-};
+}
 </script>
 
 <template>
   <div class="newitem-wrapper">
-    <input
+    <el-input
       v-model="item"
-      type="text"
       placeholder="Digite para adicionar um novo item"
-      class="item-input"
+      type="text"
+      size="large"
       @keydown="handleKeydown"
     />
-    <el-button 
-        type="primary"
-        @click="handleCreate"
-        :disabled="emptyNewItem"
-        class="create-button"
-    >
-        Adicionar
+    <el-button type="primary" @click="handleCreate" :disabled="emptyNewItem" class="create-button">
+      Adicionar
     </el-button>
   </div>
 </template>

@@ -37,7 +37,12 @@
 }
 
 :root {
-  --el-color-primary: orange;
+  --color-background: #181818 !important;
+  --color-text: #EBEBEBA3 !important;
+  --el-color-primary: orange !important;
+  --el-color-primary-dark-2: #FFAC12 !important;
+  --el-color-primary-light-3: #E69500 !important;
+  --el-color-primary-light-5: #78520C !important;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -52,6 +57,8 @@
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
 
+    --color-background: #181818 !important;
+    --color-text: #EBEBEBA3 !important;
     --el-color-primary: orange !important;
     --el-color-primary-dark-2: #FFAC12 !important;
     --el-color-primary-light-3: #E69500 !important;

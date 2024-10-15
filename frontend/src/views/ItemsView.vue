@@ -4,7 +4,7 @@ import Items from '@/components/Items.vue'
 import Tabs from '@/components/Tabs.vue'
 import Header from '@/components/Header.vue'
 import { ref } from 'vue'
-const activeTab = ref('incomplete')
+const activeTab = ref<'completed' | 'incomplete'>('incomplete');
 </script>
 
 <template>

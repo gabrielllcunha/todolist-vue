@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { CircleCheck, Delete } from '@element-plus/icons-vue'
 import { ElIcon, ElInput, ElProgress } from 'element-plus'
 import { TodoItemStore } from '@/stores/item'
@@ -11,8 +11,13 @@ const props = defineProps<{
 const itemStore = TodoItemStore()
 const { items, isLoading } = storeToRefs(itemStore)
 const editingItem = ref<{ id: string | null; field: string | null }>({ id: null, field: null })
-const setEditingItem = (id: string | null, field: string | null) => {
+const setEditingItem = async (id: string | null, field: string | null) => {
   editingItem.value = { id, field }
+  if (id && field) {
+    await nextTick()
+    const inputEl = document.getElementById(`item-${field}`)
+    if (inputEl) inputEl.focus()
+  }
 }
 const handleUpdateItemField = (item: any, field: string, value: string) => {
   itemStore.updateItemField(item.id, field, value)
@@ -96,6 +101,7 @@ const formatDate = (dateString: string) => {
                 @blur="() => handleUpdateItemField(item, 'title', item.title)"
                 @keydown.enter="() => handleUpdateItemField(item, 'title', item.title)"
                 :disabled="item.status === 'completed'"
+                :id="`item-title`"
               />
               <span
                 v-if="editingItem.id !== item.id || editingItem.field !== 'description'"
@@ -129,6 +135,7 @@ const formatDate = (dateString: string) => {
                 @blur="() => handleUpdateItemField(item, 'description', item.description)"
                 @keydown.enter="() => handleUpdateItemField(item, 'description', item.description)"
                 :disabled="item.status === 'completed'"
+                :id="`item-description`"
               />
             </div>
             <div class="item-info">

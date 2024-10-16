@@ -1,55 +1,77 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElButton, ElNotification } from 'element-plus'
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/firebase.client';
+import { ElButton, ElNotification, ElForm, ElFormItem, ElInput } from 'element-plus'
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
+} from 'firebase/auth'
+import { auth } from '@/firebase.client'
 
 const inputs = ref({
-	email: '',
-	password: ''
+  email: '',
+  password: ''
 })
 
 const recoverInputs = ref({
-	email: ''
+  email: ''
 })
 
-const router = useRouter();
+const router = useRouter()
 
 const screen = ref<'signin' | 'signup' | 'recovery'>('signin')
 
 const handleSignin = async () => {
-  const trimmedEmail = inputs.value.email.trim();
-  const trimmedPassword = inputs.value.password.trim();
+  const trimmedEmail = inputs.value.email.trim()
+  const trimmedPassword = inputs.value.password.trim()
   try {
-    await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
-    router.push('/items');
+    await signInWithEmailAndPassword(auth, trimmedEmail, trimmedPassword)
+    router.push('/items')
   } catch (error) {
     ElNotification({
       title: 'Erro',
       message: 'Email ou senha inválidos!',
-      type: 'error',
+      type: 'error'
     })
   }
 }
 
 const handleSignup = async () => {
-  const trimmedEmail = inputs.value.email.trim();
-  const trimmedPassword = inputs.value.password.trim();
+  const trimmedEmail = inputs.value.email.trim()
+  const trimmedPassword = inputs.value.password.trim()
   try {
-    await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPassword);
-    router.push('/items');
+    await createUserWithEmailAndPassword(auth, trimmedEmail, trimmedPassword)
+    ElNotification({
+      title: 'Sucesso',
+      message: 'Sua conta está pronta para ser utilizada!',
+      type: 'success'
+    })
+    router.push('/items')
   } catch (error) {
-    console.error('Signup failed:', error);
+    ElNotification({
+      title: 'Erro',
+      message: 'Não foi possível criar a conta!',
+      type: 'error'
+    })
   }
 }
 
 const handleRecovery = async () => {
-  const trimmedRecoveryEmail = recoverInputs.value.email.trim();
+  const trimmedRecoveryEmail = recoverInputs.value.email.trim()
   try {
-    await sendPasswordResetEmail(auth, trimmedRecoveryEmail);
+    await sendPasswordResetEmail(auth, trimmedRecoveryEmail)
+    ElNotification({
+      title: 'Sucesso',
+      message: 'Um link de recuperação de senha foi enviado no seu email!',
+      type: 'success'
+    })
   } catch (error) {
-    console.error('Password recovery failed:', error);
+    ElNotification({
+      title: 'Erro',
+      message: 'Não foi possível enviar o link de recuperação de senha para seu email!',
+      type: 'error'
+    })
   }
 }
 </script>
@@ -58,46 +80,64 @@ const handleRecovery = async () => {
   <div class="login-card">
     <div v-if="screen === 'signin'">
       <h2>Login</h2>
-      <form @submit.prevent="handleSignin">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input v-model="inputs.email" type="email" id="email" placeholder="Digite seu email" />
-        </div>
-        <div class="form-group">
-          <label for="password">Senha</label>
-          <input v-model="inputs.password" type="password" id="password" placeholder="Digite sua senha" />
-        </div>
-        <el-button
-          type="primary"
-          native-type="submit"
-          class="submit-button"
-        >
-          Login
-        </el-button>
-      </form>
-
+      <el-form
+        label-position="top"
+        label-width="auto"
+        :model="inputs"
+        @submit.prevent="handleSignin"
+      >
+        <el-form-item label="Email" label-position="top">
+          <el-input
+            size="large"
+            v-model="inputs.email"
+            type="email"
+            id="email"
+            placeholder="Digite seu email"
+          />
+        </el-form-item>
+        <el-form-item label="Senha" label-position="top">
+          <el-input
+            size="large"
+            v-model="inputs.password"
+            type="password"
+            id="password"
+            show-password
+            placeholder="Digite sua senha"
+          />
+        </el-form-item>
+        <el-button type="primary" native-type="submit" class="submit-button">Login</el-button>
+      </el-form>
       <div class="form-links">
-        <a href="#" @click.prevent="screen = 'recovery'" class="forgot-password">Esqueci minha senha</a>
-        <a href="#" @click.prevent="screen = 'signup'" class="sign-up">Não tem conta? Registrar-se</a>
+        <a href="#" @click.prevent="screen = 'recovery'" class="forgot-password"
+          >Esqueci minha senha</a
+        >
+        <a href="#" @click.prevent="screen = 'signup'" class="sign-up"
+          >Não tem conta? Registrar-se</a
+        >
       </div>
     </div>
 
     <div v-if="screen === 'recovery'">
       <h2>Recuperar Senha</h2>
-      <form @submit.prevent="handleRecovery">
-        <div class="form-group">
-          <label for="recovery-email">Email</label>
-          <input v-model="recoverInputs.email" type="email" id="recovery-email" placeholder="Digite seu email" />
-        </div>
-        <el-button
-          type="primary"
-          native-type="submit"
-          class="submit-button"
-        >
+      <el-form
+        label-position="top"
+        label-width="auto"
+        :model="recoverInputs"
+        @submit.prevent="handleRecovery"
+      >
+        <el-form-item label="Email" label-position="top">
+          <el-input
+            size="large"
+            v-model="recoverInputs.email"
+            type="email"
+            id="recovery-email"
+            placeholder="Digite seu email"
+          />
+        </el-form-item>
+        <el-button type="primary" native-type="submit" class="submit-button">
           Enviar link de recuperação
         </el-button>
-      </form>
-
+      </el-form>
       <div class="form-links">
         <a href="#" @click.prevent="screen = 'signin'">Voltar ao login</a>
       </div>
@@ -105,24 +145,35 @@ const handleRecovery = async () => {
 
     <div v-if="screen === 'signup'">
       <h2>Registrar-se</h2>
-      <form @submit.prevent="handleSignup">
-        <div class="form-group">
-          <label for="signup-email">Email</label>
-          <input v-model="inputs.email" type="email" id="signup-email" placeholder="Digite seu email" />
-        </div>
-        <div class="form-group">
-          <label for="signup-password">Senha</label>
-          <input v-model="inputs.password" type="password" id="signup-password" placeholder="Digite sua senha" />
-        </div>
-        <el-button
-          type="primary"
-          native-type="submit"
-          class="submit-button"
-        >
+      <el-form
+        label-position="top"
+        label-width="auto"
+        :model="inputs"
+        @submit.prevent="handleSignup"
+      >
+        <el-form-item label="Email" label-position="top">
+          <el-input
+            size="large"
+            v-model="inputs.email"
+            type="email"
+            id="signup-email"
+            placeholder="Digite seu email"
+          />
+        </el-form-item>
+        <el-form-item label="Senha" label-position="top">
+          <el-input
+            size="large"
+            v-model="inputs.password"
+            type="password"
+            id="signup-password"
+            show-password
+            placeholder="Digite sua senha"
+          />
+        </el-form-item>
+        <el-button type="primary" native-type="submit" class="submit-button">
           Registrar-se
         </el-button>
-      </form>
-
+      </el-form>
       <div class="form-links">
         <a href="#" @click.prevent="screen = 'signin'">Já tem conta? Fazer login</a>
       </div>
@@ -153,29 +204,6 @@ h2 {
   margin-bottom: 1.5rem;
   font-weight: 600;
   text-align: center;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #ffffff;
-}
-
-input {
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 8px;
-  border: none;
-  background-color: #333;
-  color: #fff;
-}
-
-input::placeholder {
-  color: #bbb;
 }
 
 button {
@@ -216,6 +244,7 @@ button:hover {
 }
 
 .submit-button {
+  margin-top: 1rem;
   padding: 1.25rem;
 }
 </style>

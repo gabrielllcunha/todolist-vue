@@ -43,6 +43,11 @@
   --el-color-primary-dark-2: #FFAC12 !important;
   --el-color-primary-light-3: #E69500 !important;
   --el-color-primary-light-5: #78520C !important;
+  .el-input__wrapper {
+    background-color: #333 !important;
+    border: none !important;
+    border-radius: 8px !important;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -63,6 +68,11 @@
     --el-color-primary-dark-2: #FFAC12 !important;
     --el-color-primary-light-3: #E69500 !important;
     --el-color-primary-light-5: #78520C !important;
+    .el-input__wrapper {
+      background-color: #333 !important;
+      border: none !important;
+      border-radius: 8px !important;
+    }
   }
 }
 

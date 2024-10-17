@@ -2,7 +2,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { CircleCheck, Delete } from '@element-plus/icons-vue'
 import { ElIcon, ElInput, ElProgress } from 'element-plus'
-import { TodoItemStore } from '@/stores/item'
+import { TodoItemStore, type Item } from '@/stores/item'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const setEditingItem = async (id: string | null, field: string | null) => {
     if (inputEl) inputEl.focus()
   }
 }
-const handleUpdateItemField = (item: any, field: string, value: string) => {
+const handleUpdateItemField = (item: Item, field: string, value: string) => {
   itemStore.updateItemField(item.id, field, value)
   setEditingItem(null, null)
   setHoveredObject(null, null)
@@ -33,7 +33,7 @@ const filteredItems = computed(() => {
     return []
   }
 })
-const handleCheck = (item: any) => {
+const handleCheck = (item: Item) => {
   const newStatus = item.status === 'completed' ? 'incomplete' : 'completed'
   itemStore.updateItemStatus(item, newStatus)
 }

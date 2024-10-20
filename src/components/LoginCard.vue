@@ -69,7 +69,7 @@ const handleRecovery = async () => {
   } catch (error) {
     ElNotification({
       title: 'Erro',
-      message: 'Não foi possível enviar o link de recuperação de senha para seu email!',
+      message: 'Não foi possível enviar o link de recuperação de senha!',
       type: 'error'
     })
   }

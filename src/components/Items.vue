@@ -36,6 +36,7 @@ const filteredItems = computed(() => {
 const handleCheck = (item: Item) => {
   const newStatus = item.status === 'completed' ? 'incomplete' : 'completed'
   itemStore.updateItemStatus(item, newStatus)
+  setHoveredObject(null, null)
 }
 const hoveredObject = ref<{ type: string | null; id: string | null }>({ type: null, id: null })
 const setHoveredObject = (type: string | null, id: string | null) => {
